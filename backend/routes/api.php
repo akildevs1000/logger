@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\LogController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
@@ -17,7 +16,7 @@ Route::get("export", [LogController::class, "export"]);
 Route::get('/', function () {
     return getData();
 });
-Route::get('/sync', function () {
+Route::post('/sync', function () {
     return Log::insert(getData());
 });
 
