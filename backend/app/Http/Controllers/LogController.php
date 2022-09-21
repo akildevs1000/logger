@@ -32,7 +32,9 @@ class LogController extends Controller
     {
         $model = Log::query();
         $model->whereBetween("log_date", [$request->from, $request->to]);
-        $model->orWhere("user_id");
+        $model->when($request->user_id, function ($q) use ($request) {
+            $q->where("user_id", $request->user_id);
+        });
         return $model->get();
     }
 

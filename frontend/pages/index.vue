@@ -245,14 +245,15 @@ export default {
       });
     },
     filter_record() {
+      let payload = {
+        params: {
+          from: this.payload.from_date,
+          to: this.payload.to_date,
+          user_id: this.payload.user_id,
+        },
+      };
       this.$axios
-        .get(`http://127.0.0.1:8000/api/range`, {
-          params: {
-            from: this.payload.from_date,
-            to: this.payload.to_date,
-            user_id: this.payload.user_id,
-          },
-        })
+        .get(`http://127.0.0.1:8000/api/range`, payload)
         .then(({ data }) => {
           this.data = data.data;
           this.total = data.total;
@@ -260,14 +261,15 @@ export default {
     },
 
     export_record() {
+      let payload = {
+        params: {
+          from: this.payload.from_date,
+          to: this.payload.to_date,
+          user_id: this.payload.user_id,
+        },
+      };
       this.$axios
-        .get(`http://127.0.0.1:8000/api/export`, {
-          params: {
-            from: this.payload.from_date,
-            to: this.payload.to_date,
-            user_id: this.payload.user_id,
-          },
-        })
+        .get(`http://127.0.0.1:8000/api/export`, payload)
         .then(({ data }) => {
           if (data.length == 0) {
             this.snackbar = true;
