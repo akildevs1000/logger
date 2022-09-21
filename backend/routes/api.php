@@ -29,7 +29,8 @@ function clone_db()
     return "Failed";
 }
 
-function getLastSerialIdFromDb(){
+function getLastSerialIdFromDb()
+{
     return Log::orderByDesc("id")->pluck("serial_no")[0] ?? 0;
 }
 
@@ -49,7 +50,7 @@ function getData()
         $lastRecord = getLastSerialIdFromDb();
         $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $stmt = $db->prepare("select cr.PersonnelID, cr.DataTime, cr.EquptID, cr.RecordSerialNumber, Equipment.EquptSN
-            from CardRecord as cr INNER JOIN Equipment ON cr.EquptID=Equipment.EquptID where RecordSerialNumber > $lastRecord  ORDER BY RecordSerialNumber asc");
+            from CardRecord as cr INNER JOIN Equipment ON cr.EquptID=Equipment.EquptID where RecordSerialNumber > $lastRecord and cr.PersonnelID > 0  ORDER BY RecordSerialNumber asc");
         $stmt->execute();
 
         $stmt->setFetchMode(PDO::FETCH_ASSOC);
