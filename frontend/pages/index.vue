@@ -248,7 +248,7 @@ export default {
       return header + rows;
     },
     sync_record() {
-      this.$axios.get(`http://127.0.0.1:8000/api/sync`).then(({ data }) => {
+      this.$axios.post(`http://127.0.0.1:8000/api/sync`).then(({ data }) => {
         this.getDataFromApi();
       });
     },
