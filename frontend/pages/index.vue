@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-card class="pa-5">
-      <v-row justify="left" align="left" class="pt-2 mt-5">
+      <v-row class="pt-2 mt-5">
         <v-col cols="12" sm="8" md="4">
           <div class="text-left">
             <v-menu
@@ -204,14 +204,6 @@ export default {
     m = m < 10 ? "0" + m : m;
     this.payload.from_date = `${y}-${m}-01`;
     this.payload.to_date = `${y}-${m}-${31}`;
-
-    this.columns = {
-      params: {
-        from: this.payload.from_date,
-        to: this.payload.to_date,
-        user_id: this.payload.user_id,
-      },
-    };
   },
 
   methods: {
@@ -253,9 +245,14 @@ export default {
       });
     },
     filter_record() {
-      // export
       this.$axios
-        .get(`http://127.0.0.1:8000/api/range`, this.columns)
+        .get(`http://127.0.0.1:8000/api/range`, {
+          params: {
+            from: this.payload.from_date,
+            to: this.payload.to_date,
+            user_id: this.payload.user_id,
+          },
+        })
         .then(({ data }) => {
           this.data = data.data;
           this.total = data.total;
@@ -264,7 +261,13 @@ export default {
 
     export_record() {
       this.$axios
-        .get(`http://127.0.0.1:8000/api/export`, this.columns)
+        .get(`http://127.0.0.1:8000/api/export`, {
+          params: {
+            from: this.payload.from_date,
+            to: this.payload.to_date,
+            user_id: this.payload.user_id,
+          },
+        })
         .then(({ data }) => {
           if (data.length == 0) {
             this.snackbar = true;
