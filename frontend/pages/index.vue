@@ -96,11 +96,21 @@ export default {
     Model: "Report",
     total: 0,
     headers: [
-      { text: "User Id", align: "left", sortable: false, value: "user_id" },
+      {
+        text: "Worker Number",
+        align: "left",
+        sortable: false,
+        value: "user_id",
+      },
       { text: "Log Date", align: "left", sortable: false, value: "log_date" },
       { text: "Log Time", align: "left", sortable: false, value: "log_time" },
       { text: "Type", align: "left", sortable: false, value: "type" },
-      { text: "Device Id", align: "left", sortable: false, value: "device_id" },
+      {
+        text: "Device Location",
+        align: "left",
+        sortable: false,
+        value: "device_id",
+      },
     ],
     options: {},
     columns: {},
@@ -139,7 +149,7 @@ export default {
   },
 
   methods: {
-    getDataFromApi(url = `http://127.0.0.1:8000/api/log`) {
+    getDataFromApi(url = `/log`) {
       const { page, itemsPerPage } = this.options;
 
       let options = {
@@ -156,23 +166,20 @@ export default {
     },
 
     json_to_csv(json) {
-      let data = json.map((e) => ({
-        "User Id": e.user_id,
-        "Log Date": e.log_date,
-        "Log Time": e.log_time,
-        Type: e.type,
-        "Device Id": e.device_id,
-      }));
-
-      let header = Object.keys(data[0]).join(",") + "\n";
-      let rows = "";
-      data.forEach((e) => {
-        rows += Object.values(e).join(",").trim() + "\n";
+      let rows = json.map((e, i) => Object.values(e));
+      let str = "";
+      rows.forEach((e) => {
+        str += e.replace(",", " ") + "\n";
       });
-      return header + rows;
+
+      return str;
     },
     sync_record() {
+<<<<<<< HEAD
       this.$axios.post(`http://127.0.0.1:8000/api/sync`).then(({ data }) => {
+=======
+      this.$axios.post(`/sync_from_mdb`).then(({ data }) => {
+>>>>>>> 7ce43696298564fb88368c77cf1baf891fccaeb7
         if (!data.status && data.status !== undefined) {
           alert(data.message);
           return;
@@ -188,12 +195,10 @@ export default {
           user_id: this.payload.user_id,
         },
       };
-      this.$axios
-        .get(`http://127.0.0.1:8000/api/range`, payload)
-        .then(({ data }) => {
-          this.data = data.data;
-          this.total = data.total;
-        });
+      this.$axios.get(`/log`, payload).then(({ data }) => {
+        this.data = data.data;
+        this.total = data.total;
+      });
     },
 
     export_record() {
@@ -204,25 +209,24 @@ export default {
           user_id: this.payload.user_id,
         },
       };
-      this.$axios
-        .get(`http://127.0.0.1:8000/api/export`, payload)
-        .then(({ data }) => {
-          if (data.length == 0) {
-            this.snackbar = true;
-            this.response = "No record to download";
-            return;
-          }
-          let csvData = this.json_to_csv(data);
-          let a = document.createElement("a");
-          a.setAttribute(
-            "href",
-            "data:text/plain;charset=utf-8, " + encodeURIComponent(csvData)
-          );
-          a.setAttribute("download", "logs.txt");
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-        });
+      this.$axios.get(`/export`, payload).then(({ data }) => {
+        if (data.length == 0) {
+          this.snackbar = true;
+          this.response = "No record to download";
+          return;
+        }
+        let csvData = this.json_to_csv(data);
+
+        let a = document.createElement("a");
+        a.setAttribute(
+          "href",
+          "data:text/plain;charset=utf-8, " + encodeURIComponent(csvData)
+        );
+        a.setAttribute("download", "logs.txt");
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      });
     },
   },
 };

@@ -3,13 +3,13 @@
 use App\Http\Controllers\LogController;
 use Illuminate\Support\Facades\Route;
 
-
-use App\Models\Log;
-
-
 Route::apiResource("log", LogController::class);
-Route::get("range", [LogController::class, "range"]);
+Route::get("/", [LogController::class, "mdb_log"]);
+Route::get("mdb_log", [LogController::class, "mdb_log"]);
+Route::post("sync_from_mdb", [LogController::class, "sync_from_mdb"]);
+
 Route::get("export", [LogController::class, "export"]);
+<<<<<<< HEAD
 
 
 
@@ -107,3 +107,5 @@ function convert_date($oaDate)
 
     return $datetime;
 }
+=======
+>>>>>>> 7ce43696298564fb88368c77cf1baf891fccaeb7
