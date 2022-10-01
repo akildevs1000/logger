@@ -46,7 +46,7 @@ class LogController extends Controller
      */
     public function store(Request $request)
     {
-        $file = base_path() . "/logs/OXSAI_timedata_DX.csv";
+        $file = base_path() . "/logs/logs.csv";
 
         if (!file_exists($file)) {
             return [
@@ -57,30 +57,41 @@ class LogController extends Controller
 
         $first = true;
         $data = [];
+        $punch = "";
 
-        if (($handle = fopen(base_path() . "/logs/OXSAI_timedata_DX.csv", 'r')) !== false) {
+        if (($handle = fopen(base_path() . "/logs/logs.csv", 'r')) !== false) {
             while (($row = fgetcsv($handle, 1000, ',')) !== false) {
 
                 if ($first) {
                     $first = false;
                 } else {
-                    $datetime = explode(" ", $row[1]);
-                    $data[] = [
+                    $datetime = explode(" ", $row[2]);
+
+                    $arr = [
                         "user_id" => $row[0],
                         "log_date" => date("Y-m-d", strtotime($datetime[0])),
                         "log_time" => $datetime[1],
-                        "device_id" => $row[2],
+                        "device_id" => $row[1],
                         "device_model" => substr($row[2], 0, 7),
                         "serial_no" => $row[3],
-                        "type" => $row[2] == "OX-8662021010065" ? "C/in" : "C/out"
                     ];
+
+                    if ($row[1] == env("DEVICE_IN") || $row[1] == env("DEVICE_OUT")) {
+                        if ($row[1] == env("DEVICE_IN")) {
+                            $arr["type"] = "C/in";
+                        } else if ($row[1] == env("DEVICE_OUT")) {
+                            $arr["type"] = "C/out";
+                        }
+
+                        $data[] = $arr;
+                    }
                 }
             }
             fclose($handle);
         }
         try {
             $created = Log::insert($data);
-            // $created ? unlink(base_path() . "/logs/OXSAI_timedata_DX.csv") : 0;
+            $created ? unlink(base_path() . "/logs/logs.csv") : 0;
             return $created ?? 0;
         } catch (\Throwable $th) {
             throw $th;

@@ -25,8 +25,7 @@
       </v-list>
     </v-navigation-drawer> -->
     <v-app-bar
-      class="blue-grey darken-1"
-      :clipped-left="clipped"
+      class="teal lighten-1"
       fixed
       app
       dark
@@ -50,9 +49,7 @@
       >
         <v-icon>mdi-minus</v-icon>
       </v-btn> -->
-      <v-toolbar-title v-text="title" />
-     
-      <v-spacer />
+      <h2 class="pa-13">{{title}}</h2>
     </v-app-bar>
     <v-main>
       <v-container>

@@ -16,6 +16,10 @@ Route::get("export", [LogController::class, "export"]);
 Route::get('/', function () {
     return getData();
 });
+
+Route::get('/clone_db', function () {
+    return clone_db();
+});
 Route::post('/sync', function () {
     return Log::insert(getData());
 });
@@ -36,7 +40,10 @@ function getLastSerialIdFromDb()
 
 function getData()
 {
-    clone_db();
+    if (env("APP_ENV") == "production") {
+        clone_db();
+    }
+
 
     $APP_PATH = env("APP_PATH");
     $db = new PDO("odbc:Driver={Microsoft Access Driver (*.mdb, *.accdb)}; DBQ=$APP_PATH;");
