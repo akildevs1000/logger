@@ -1,5 +1,15 @@
 # frontend
 
+## Run as background service
+
+<!-- Run this command in powershell => Start-Process "C:\Users\Hp\Desktop\logger\backend\php.exe" -WindowStyle Hidden -->
+<!-- 
+To Stop Service
+----------------
+Stop-Process -Name "Process name" -->
+
+
+
 ## Build Setup
 
 ```bash
