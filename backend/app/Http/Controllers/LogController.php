@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Device;
+use App\Models\ExternalConnection;
 use App\Models\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log as CustomLog;
@@ -29,41 +31,92 @@ class LogController extends Controller
         return $model->paginate($request->per_page ?? 10);
     }
 
+    public function exportCsv($data)
+    {
+        $fileName = 'logs.txt';
+
+        $headers = array(
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        );
+
+        $callback = function () use ($data) {
+            $file = fopen('php://output', 'w');
+            foreach ($data as $col) {
+                fputcsv($file, [
+                    $col['user_id'],
+                    preg_replace("/\$\d+,\d+/", "", $col['log_date'] . "-" . $col['log_time']),
+                    $col['type'],
+                    $col['device_id']
+                ], "	");
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
     public function export(Request $request)
     {
         $model = Log::query();
         $model->whereBetween("log_date", [$request->from, $request->to]);
-        $model->when($request->user_id, function ($q) use ($request) {
+        $model->when((int) $request->user_id > 0, function ($q) use ($request) {
             $q->where("user_id", $request->user_id);
         });
-        return $model->get(["user_id","log_date","log_time","type"]);
+
+        $data = $model->get(["user_id", "log_date", "log_time", "type", "device_id"]);
+
+        return $this->exportCsv($data);
     }
 
     public function getLastSerialIdFromDb()
     {
-        return Log::orderByDesc("id")->pluck("serial_no")[0] ?? 0;
+        return Log::orderByDesc("id")->value("serial_no") ?? 0;
     }
 
     public function sync_from_mdb()
     {
-        return Log::insert($this->mdb_log());
+        $arr = $this->mdb_log();
+
+        Log::insert($arr["data"]);
+
+        return $arr;
     }
 
 
     public function mdb_log()
     {
-        $MASQL_DB_PATH = env("MASQL_DB_PATH");
+        $external_connection = ExternalConnection::first(["path", "database_name"]);
+
+        $path = $external_connection->path;
+        $database_name = $external_connection->database_name;
+
+        $connection_string = $path . "\\" . $database_name . ".mdb";
+
+        $device_db_c_in = Device::pluck("c_in")->toArray();
+        $device_db_c_out = Device::pluck("c_out")->toArray();
+
 
         try {
-            $db = new \PDO("odbc:Driver={Microsoft Access Driver (*.mdb, *.accdb)}; DBQ=$MASQL_DB_PATH;");
+            $db = new \PDO("odbc:Driver={Microsoft Access Driver (*.mdb, *.accdb)}; DBQ=$connection_string;");
 
             $lastRecord = $this->getLastSerialIdFromDb();
             $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-            $stmt = $db->prepare("select cr.PCode, cr.DataTime, cr.EquptID,cr.EquptName, cr.RecordSerialNumber, Equipment.EquptSN
-            from CardRecord as cr INNER JOIN Equipment ON cr.EquptID=Equipment.EquptID where RecordSerialNumber > $lastRecord and cr.PersonnelID > 0  ORDER BY RecordSerialNumber asc");
+
+            $countStmt = $db->prepare("SELECT COUNT(*) as total_count FROM CardRecord WHERE CardRecordID > $lastRecord AND PCode > '0'");
+            $countStmt->execute();
+            $totalCount = $countStmt->fetch(\PDO::FETCH_ASSOC)['total_count'];
+
+            $stmt = $db->prepare("select top 10 CardRecordID, PCode, DataTime, EquptID, EquptName from CardRecord where CardRecordID > $lastRecord and PCode > '0' ORDER BY CardRecordID asc");
+
             $stmt->execute();
 
             $stmt->setFetchMode(\PDO::FETCH_ASSOC);
+
             $records = $stmt->fetchAll();
 
             $arr = [];
@@ -72,16 +125,21 @@ class LogController extends Controller
                 $datetime = $this->convert_date($record["DataTime"]);
 
                 $arr[] = [
-                    "serial_no" => $record["RecordSerialNumber"],
+                    "serial_no" => $record["CardRecordID"],
                     "user_id" => $record["PCode"],
-                    "type" => $record["EquptID"] == 1 ? "C/in" : "C/out",
+                    "type" => $this->getType($record["EquptName"], $device_db_c_in, $device_db_c_out),
                     "device_id" => $record["EquptName"],
-                    "device_model" => substr($record["EquptSN"], 0, 7),
+                    "device_model" => ($record["EquptID"]),
                     "log_date" => $datetime[0] ?? "",
                     "log_time" => explode(".", $datetime[1])[0] ?? "",
                 ];
             }
-            return ($arr);
+
+            return [
+                "lastRecord" => $lastRecord,
+                "totalCount" => $totalCount,
+                "data" => $arr,
+            ];
         } catch (\PDOException $e) {
             CustomLog::channel("custom")->error($e->getMessage());
             return $e->getMessage();
@@ -93,6 +151,15 @@ class LogController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    public function getType($device, $device_db_c_in, $device_db_c_out)
+    {
+        if (in_array($device, $device_db_c_in)) {
+            return "C/In";
+        } else if (in_array($device, $device_db_c_out)) {
+            return "C/Out";
+        }
+        return "Unknown";
+    }
     public function store(Request $request)
     {
         $file = base_path() . "/logs/logs.csv";
@@ -145,6 +212,11 @@ class LogController extends Controller
         } catch (\Throwable $th) {
             throw $th;
         }
+    }
+
+    public function cleanLogs()
+    {
+        return Log::truncate() ? "Cleaned" : "Not Cleaned";
     }
 
     public function convert_date($oaDate)

@@ -1,0 +1,35 @@
+{
+  "name": "batch-launcher",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.francis.batchlauncher",
+    "win": {
+      "target": "nsis"
+    },
+    "directories": {
+      "output": "dist-build"
+    },
+    "files": [
+      "main.js",
+      "dist/**/*",
+      "run_sdk.bat",
+      "all_laravel_services.bat",
+      "node_modules/**/*",
+      "package.json"
+    ]
+  },
+  "dependencies": {
+    "electron-auto-launch": "^5.0.7",
+    "express": "^5.1.0",
+    "pm2": "^6.0.5"
+  },
+  "devDependencies": {
+    "electron": "^35.1.5",
+    "electron-builder": "^24.13.3"
+  }
+}

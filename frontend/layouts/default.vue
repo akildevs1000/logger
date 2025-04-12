@@ -6,13 +6,24 @@
           Connect Database
           <v-spacer></v-spacer>
           <v-badge :color="response.color" class="mt-3 mr-3"></v-badge>
-
         </v-card-title>
 
         <v-card-text class="pa-3">
-          <v-text-field v-model="path" label="Path" color="teal" outlined dense></v-text-field>
-          <v-text-field v-model="database_name" label="Database Name" color="teal" outlined dense></v-text-field>
-          <div :class="`${response.color}--text`">{{response.message}}</div>
+          <v-text-field
+            v-model="path"
+            label="Path"
+            color="teal"
+            outlined
+            dense
+          ></v-text-field>
+          <v-text-field
+            v-model="database_name"
+            label="Database Name"
+            color="teal"
+            outlined
+            dense
+          ></v-text-field>
+          <div :class="`${response.color}--text`">{{ response.message }}</div>
         </v-card-text>
 
         <v-divider></v-divider>
@@ -22,7 +33,13 @@
           <v-btn color="red darken-4" small dark @click="dialog1 = false">
             close
           </v-btn>
-          <v-btn :loading="loading" color="blue-grey darken-4" small dark @click="connect">
+          <v-btn
+            :loading="loading"
+            color="blue-grey darken-4"
+            small
+            dark
+            @click="connect"
+          >
             Connect
           </v-btn>
         </v-card-actions>
@@ -41,18 +58,31 @@
         <v-card-text class="pa-3">
           <v-row dense v-for="(d, index) in devices" :key="index">
             <v-col md="5">
-              <v-text-field :rules="requiredRule" v-model="devices[index].c_in" label="C/in" color="teal" outlined
-                dense></v-text-field>
+              <v-text-field
+                :rules="requiredRule"
+                v-model="devices[index].c_in"
+                label="C/in"
+                color="teal"
+                outlined
+                dense
+              ></v-text-field>
             </v-col>
             <v-col md="5">
-              <v-text-field v-model="devices[index].c_out" label="C/out" color="teal" outlined dense></v-text-field>
+              <v-text-field
+                v-model="devices[index].c_out"
+                label="C/out"
+                color="teal"
+                outlined
+                dense
+              ></v-text-field>
             </v-col>
             <v-col md="2">
-              <v-icon color="error" @click="deleteItem(index)">mdi-delete</v-icon>
+              <v-icon color="error" @click="deleteItem(index)"
+                >mdi-delete</v-icon
+              >
             </v-col>
           </v-row>
-          <div :class="`${response.color}--text`">{{response.message}}</div>
-
+          <div :class="`${response.color}--text`">{{ response.message }}</div>
         </v-card-text>
 
         <v-divider></v-divider>
@@ -62,71 +92,49 @@
           <v-btn color="red darken-4" small dark @click="dialog2 = false">
             close
           </v-btn>
-          <v-btn :loading="loading" color="blue-grey darken-4" small dark @click="save">
+          <v-btn
+            :loading="loading"
+            color="blue-grey darken-4"
+            small
+            dark
+            @click="save"
+          >
             Save
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <!-- <v-navigation-drawer
-      v-model="drawer"
-      :mini-variant="miniVariant"
-      :clipped="clipped"
-      fixed
-      app
-    >
-      <v-list>
-        <v-list-item
-          v-for="(item, i) in items"
-          :key="i"
-          :to="item.to"
-          router
-          exact
-        >
-          <v-list-item-action>
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title v-text="item.title" />
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer> -->
-    <v-app-bar class="primary" fixed app dark>
-      <!-- <v-app-bar-nav-icon @click.stop="drawer = !drawer" /> -->
-      <!-- <v-btn
-        icon
-        @click.stop="miniVariant = !miniVariant"
-      >
-        <v-icon>mdi-{{ `chevron-${miniVariant ? 'right' : 'left'}` }}</v-icon>
-      </v-btn>
-      <v-btn
-        icon
-        @click.stop="clipped = !clipped"
-      >
-        <v-icon>mdi-application</v-icon>
-      </v-btn>
-      <v-btn
-        icon
-        @click.stop="fixed = !fixed"
-      >
-        <v-icon>mdi-minus</v-icon>
-      </v-btn> -->
-      <h2 class="pa-13">{{ title }}</h2>
-      <v-spacer></v-spacer>
-
-      <v-btn small @click="dialog1 = true">Connect Database
-        <v-icon right dark>mdi-connection</v-icon>
-      </v-btn>
-      &nbsp;
-      <v-btn small @click="() => {dialog2 = true; response.message = ''}">Map Devices
-        <v-icon right dark>mdi-laptop</v-icon>
-      </v-btn>
+    <v-app-bar class="blue" fixed app dark dense>
+      <v-container>
+        <v-row>
+          <v-col>
+            <div>
+              {{ title }}
+            </div>
+          </v-col>
+          <v-col class="text-right">
+            <!-- <v-btn small @click="dialog1 = true">
+              Connect Database
+              <v-icon right dark>mdi-connection</v-icon>
+            </v-btn> -->
+            <v-btn
+              small
+              @click="
+                () => {
+                  dialog2 = true;
+                  response.message = '';
+                }
+              "
+            >
+              Map Devices
+              <v-icon right dark>mdi-laptop</v-icon>
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-container>
     </v-app-bar>
     <v-main>
-      <v-container>
-        <Nuxt />
-      </v-container>
+      <Nuxt />
     </v-main>
     <v-navigation-drawer v-model="rightDrawer" :right="right" temporary fixed>
       <v-list>
@@ -151,9 +159,7 @@ export default {
   name: "DefaultLayout",
   data() {
     return {
-      requiredRule: [
-        v => !!v || 'Field is required',
-      ],
+      requiredRule: [(v) => !!v || "Field is required"],
       dialog1: false,
       dialog2: false,
       clipped: false,
@@ -188,7 +194,7 @@ export default {
       },
 
       path: null,
-      database_name: null
+      database_name: null,
     };
   },
   created() {
@@ -198,35 +204,30 @@ export default {
   },
   methods: {
     get_devices() {
-      this.$axios.get("/devices")
-        .then(({ data }) => {
-          if (!data.length) return;
-          this.devices = data;
-        });
+      this.$axios.get("/devices").then(({ data }) => {
+        if (!data.length) return;
+        this.devices = data;
+      });
     },
 
     save() {
-      this.$axios.post("/devices", this.devices)
-        .then(({ data }) => {
+      this.$axios.post("/devices", this.devices).then(({ data }) => {
+        if (data.status) {
+          this.get_devices();
 
-          if (data.status) {
-            this.get_devices();
-
-            this.response = {
-              status: true,
-              color: "primary",
-              message: data.message,
-            };
-            return;
-          }
           this.response = {
-            status: data.status,
-            color: "error",
+            status: true,
+            color: "primary",
             message: data.message,
           };
-
-
-        });
+          return;
+        }
+        this.response = {
+          status: data.status,
+          color: "error",
+          message: data.message,
+        };
+      });
     },
     add() {
       this.devices.push({ c_in: "", c_out: "" });
@@ -235,14 +236,13 @@ export default {
       this.devices.splice(i, 1);
     },
     connect() {
-
       let payload = {
         path: this.path,
-        database_name: this.database_name
+        database_name: this.database_name,
       };
-      this.$axios.post("/setExternalConnection", payload)
+      this.$axios
+        .post("/setExternalConnection", payload)
         .then(({ data, status }) => {
-
           if (status !== 200) {
             return;
           }
@@ -251,11 +251,11 @@ export default {
           this.database_name = data.database_name;
 
           this.check_connection();
-        })
-
+        });
     },
     check_connection() {
-      this.$axios.get("/check_external_database_connection")
+      this.$axios
+        .get("/check_external_database_connection")
         .then(({ data, status }) => {
           this.response = {
             status: true,
@@ -276,7 +276,8 @@ export default {
         });
     },
     get_connection() {
-      this.$axios.get("/getExternalConnection")
+      this.$axios
+        .get("/getExternalConnection")
         .then(({ data, status }) => {
           this.path = data.path;
           this.database_name = data.database_name;

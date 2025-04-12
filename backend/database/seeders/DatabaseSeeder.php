@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+use App\Models\ExternalConnection;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -14,6 +16,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        ExternalConnection::create([
+            "path" => "your path",
+            "database_name" => "your database"
+        ]);
         // \App\Models\User::factory(10)->create();
 
         // \App\Models\User::factory()->create([

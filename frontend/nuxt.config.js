@@ -2,7 +2,7 @@ import colors from "vuetify/es5/util/colors";
 
 export default {
   // Target: https://go.nuxtjs.dev/config-target
-  target: "server",
+  target: "static",
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
@@ -42,7 +42,7 @@ export default {
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
     // Workaround to avoid enforcing hard-coded localhost:3000: https://github.com/nuxt-community/axios-module/issues/308
-    baseURL: "http://localhost:8000/api",
+    baseURL: "/",
   },
 
   // PWA module configuration: https://go.nuxtjs.dev/pwa
@@ -59,19 +59,19 @@ export default {
       dark: false,
       themes: {
         dark: {
-          primary: colors.teal.lighten1,
+          primary: colors.blue,
           accent: colors.grey.darken3,
           secondary: colors.amber.darken3,
-          info: colors.teal.lighten1,
+          info: colors.blue,
           warning: colors.amber.base,
           error: colors.deepOrange.accent4,
           success: colors.green.accent3,
         },
         light: {
-          primary: colors.teal.lighten1,
+          primary: colors.blue,
           accent: colors.grey.darken3,
           secondary: colors.amber.darken3,
-          info: colors.teal.lighten1,
+          info: colors.blue,
           warning: colors.amber.base,
           error: colors.deepOrange.accent4,
           success: colors.green.accent3,
